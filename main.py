@@ -21,7 +21,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 #     font += 2
 #     font_list.append(str(font))
 
-pattern_list_name = [' ', 'Email', 'Name', 'Data', 'Total sum']
+pattern_list_name = [' ', 'Email', 'Name', 'Date', 'Total sum']
 
 
 class PyShine_OCR_APP(QtWidgets.QMainWindow):
