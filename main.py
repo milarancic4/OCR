@@ -213,7 +213,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         deskewed = a.deskew(image)
         height, width, channel = deskewed.shape
         bytesPerLine = 3 * width
-        qImg = QImage(deskewed.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        qImg = QImage(deskewed.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
         self.ui.label_2.setPixmap(QtGui.QPixmap(qImg))
 
 # www.pyshine.com
