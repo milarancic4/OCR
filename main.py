@@ -11,6 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import glob
 import pandas as pd
 import re
+from Preprocessing_Image import PreprocessingImage
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -32,6 +33,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
 
         self.ui.pushButton.clicked.connect(self.open)
         self.ui.pushButton_3.clicked.connect(self.write_formated_text)
+        self.ui.pushButton_4.clicked.connect(self.rotate_img)
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self)
 
         self.pattern_name = ' '
@@ -203,7 +205,16 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
                                    QImage.Format_RGB888)
                     self.ui.label_2.setPixmap(QPixmap.fromImage(image))
                     return d['text'][i]
-
+    
+    def rotate_img(self):
+        import numpy as np
+        a = PreprocessingImage()
+        image = cv2.imread(str(self.filename[0]))
+        deskewed = a.deskew(image)
+        height, width, channel = deskewed.shape
+        bytesPerLine = 3 * width
+        qImg = QImage(deskewed.data, width, height, bytesPerLine, QImage.Format_RGB888)
+        self.ui.label_2.setPixmap(QtGui.QPixmap(qImg))
 
 # www.pyshine.com
 app = QtWidgets.QApplication(sys.argv)
