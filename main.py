@@ -24,6 +24,8 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 pattern_list_name = [' ', 'Email', 'Name', 'Date', 'Total sum']
 
+rotated_image = ""
+r = ""
 
 class PyShine_OCR_APP(QtWidgets.QMainWindow):
     def __init__(self):
@@ -115,10 +117,16 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         return text2
 
     def write_formated_text(self):
-        self.clear_textBox();
-        image = cv2.imread(str(self.filename[0]))
+        global r, rotated_image
+        self.clear_textBox()
+        if r == 'X':
+            image = rotated_image
+        else:
+            image = cv2.imread(str(self.filename[0]))
         self.text = self.image_to_data(image)
         self.ui.textEdit.setText(str(self.text))
+        r = ""
+        rotated_image = ""
 
     def update_pattern(self, value):
         pattern_name = value
@@ -207,10 +215,12 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
                     return d['text'][i]
     
     def rotate_img(self):
-        import numpy as np
+        global r, rotated_image
+        r = 'X'
         a = PreprocessingImage()
         image = cv2.imread(str(self.filename[0]))
         deskewed = a.deskew(image)
+        rotated_image = deskewed
         height, width, channel = deskewed.shape
         bytesPerLine = 3 * width
         qImg = QImage(deskewed.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
