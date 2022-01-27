@@ -133,7 +133,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         if pattern_name == 'Email':
             pattern = "^[a-zA-Z]+[@][a-zA-Z]+[\.][a-zA-Z]+$"
             element = self.find_email(pattern)
-        if pattern_name == 'Data':
+        if pattern_name == 'Date':
             pattern = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/(19|20)\d\d$"
             element = self.find_data(pattern)
         if pattern_name == 'Total sum':
