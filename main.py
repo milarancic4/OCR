@@ -36,6 +36,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         self.ui.pushButton.clicked.connect(self.open)
         self.ui.pushButton_3.clicked.connect(self.write_formated_text)
         self.ui.pushButton_4.clicked.connect(self.rotate_img)
+        self.ui.pushButton_2.clicked.connect(self.save)
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self)
 
         self.pattern_name = ' '
@@ -225,6 +226,12 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         bytesPerLine = 3 * width
         qImg = QImage(deskewed.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
         self.ui.label_2.setPixmap(QtGui.QPixmap(qImg))
+    
+    def save(self):
+        a = PreprocessingImage()
+        mytext = self.textEdit.toPlainText()
+        with open('test.txt', 'w') as outfile:
+            outfile.write(mytext)
 
 # www.pyshine.com
 app = QtWidgets.QApplication(sys.argv)
