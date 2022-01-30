@@ -65,7 +65,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
     def open(self):
         self.filename = QFileDialog.getOpenFileName(self, 'Select File')
         self.image = cv2.imread(str(self.filename[0]))
-        self.image = cv2.resize(self.image, (627, 797))
+        self.image = cv2.resize(self.image, (627, 797), interpolation = cv2.INTER_AREA)
         frame = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
         image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
         self.ui.label_2.setPixmap(QPixmap.fromImage(image))
@@ -222,13 +222,13 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         image = cv2.imread(str(self.filename[0]))
         deskewed = a.deskew(image)
         rotated_image = deskewed
+        deskewed = cv2.resize(deskewed, (627, 797), interpolation=cv2.INTER_AREA)
         height, width, channel = deskewed.shape
         bytesPerLine = 3 * width
         qImg = QImage(deskewed.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
         self.ui.label_2.setPixmap(QtGui.QPixmap(qImg))
     
     def save(self):
-        a = PreprocessingImage()
         mytext = self.textEdit.toPlainText()
         with open('test.txt', 'w') as outfile:
             outfile.write(mytext)
