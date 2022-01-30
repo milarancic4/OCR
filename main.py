@@ -65,7 +65,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
     def open(self):
         self.filename = QFileDialog.getOpenFileName(self, 'Select File')
         self.image = cv2.imread(str(self.filename[0]))
-        # self.image = cv2.resize(self.image, (627, 797))
+        self.image = cv2.resize(self.image, (627, 797))
         frame = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
         image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
         self.ui.label_2.setPixmap(QPixmap.fromImage(image))
