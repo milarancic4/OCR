@@ -15,17 +15,11 @@ from Preprocessing_Image import PreprocessingImage
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-# font_list = []
-# font = 2
-#
-# for font in range(110):
-#     font += 2
-#     font_list.append(str(font))
-
 pattern_list_name = [' ', 'Email', 'Name', 'Date', 'Total sum']
 
 rotated_image = ""
 r = ""
+
 
 class PyShine_OCR_APP(QtWidgets.QMainWindow):
     def __init__(self):
@@ -44,20 +38,6 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         self.comboBox.currentIndexChanged['QString'].connect(self.update_pattern)
         self.comboBox.setCurrentIndex(pattern_list_name.index(self.pattern_name))
 
-        # self.font_size = '20'
-        # self.text = ''
-        # self.comboBox.addItems(font_list)
-        # self.comboBox.currentIndexChanged['QString'].connect(self.update_font_size)
-        # self.comboBox.setCurrentIndex(font_list.index(self.font_size))
-        #
-        # self.ui.textEdit.setFontPointSize(int(self.font_size))
-        # self.setAcceptDrops(True)
-
-    # def update_font_size(self, value):
-    #     self.font_size = value
-    #     self.ui.textEdit.setFontPointSize(int(self.font_size))
-    #     self.text = self.ui.textEdit.toPlainText()
-    #     self.ui.textEdit.setText(str(self.text))
     def clear_textBox(self):
         text = self.ui.textEdit.toPlainText()
         self.ui.textEdit.setText(str(text))
@@ -65,8 +45,8 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
     def open(self):
         self.filename = QFileDialog.getOpenFileName(self, 'Select File')
         self.image = cv2.imread(str(self.filename[0]))
-        self.image = cv2.resize(self.image, (627, 797), interpolation = cv2.INTER_AREA)
-        frame = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+        image = cv2.resize(self.image, (627, 797))
+        frame = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0], QImage.Format_RGB888)
         self.ui.label_2.setPixmap(QPixmap.fromImage(image))
 
@@ -136,7 +116,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
             element = self.find_email(pattern)
         if pattern_name == 'Date':
             pattern = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/(19|20)\d\d$"
-            element = self.find_data(pattern)
+            element = self.find_date(pattern)
         if pattern_name == 'Total sum':
             pattern = "^[a-zA-Z]*[\s]*Total$"
             element = self.find_total_sum(pattern)
@@ -144,6 +124,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
             pattern = "^(SHIPPING|shipping|BILL|bill)+[\s]*(TO,to)*[:]*"
             element = self.find_name(pattern)
         self.ui.textEdit.setText(str(element))
+
 
     def find_name(self, chosen_pattern):
         d = pytesseract.image_to_data(self.image, output_type=Output.DICT)
@@ -159,12 +140,7 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
                                 d['text'][j] != '' and d['conf'][j] != -1:
                             found = True
                             (x, y, w, h) = (d['left'][j], d['top'][j], d['width'][j], d['height'][j])
-                            print(x, y, w, h)
-                            self.image = cv2.rectangle(self.image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                            frame = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-                            image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0],
-                                           QImage.Format_RGB888)
-                            self.ui.label_2.setPixmap(QPixmap.fromImage(image))
+                            self.frame_element(x, y, w, h)
                             return d['text'][j]
                         j += 1
 
@@ -180,27 +156,20 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
                     if re.match(pattern_money, d['text'][j]):
                         print(d['text'][j])
                         (x, y, w, h) = (d['left'][j], d['top'][j], d['width'][j], d['height'][j])
-                        self.image = cv2.rectangle(self.image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                        frame = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-                        image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0],
-                                       QImage.Format_RGB888)
-                        self.ui.label_2.setPixmap(QPixmap.fromImage(image))
+                        self.frame_element(x, y, w, h)
                         print(d['text'][j])
                         return d['text'][j]
 
-    def find_data(self, chosen_pattern):
+    def find_date(self, chosen_pattern):
         d = pytesseract.image_to_data(self.image, output_type=Output.DICT)
         n_boxes = len(d['text'])
         for i in range(n_boxes):
             if int(float(d['conf'][i])) > 60:
                 if re.match(chosen_pattern, d['text'][i]):
                     (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
-                    self.image = cv2.rectangle(self.image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                    frame = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-                    image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0],
-                                   QImage.Format_RGB888)
-                    self.ui.label_2.setPixmap(QPixmap.fromImage(image))
+                    self.frame_element(x, y, w, h)
                     return d['text'][i]
+
     def find_email(self, chosen_pattern):
         d = pytesseract.image_to_data(self.image, output_type=Output.DICT)
         n_boxes = len(d['text'])
@@ -208,13 +177,17 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
             if int(float(d['conf'][i])) > 60:
                 if re.match(chosen_pattern, d['text'][i]):
                     (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
-                    self.image = cv2.rectangle(self.image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                    frame = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-                    image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0],
-                                   QImage.Format_RGB888)
-                    self.ui.label_2.setPixmap(QPixmap.fromImage(image))
+                    self.frame_element(x, y, w, h)
                     return d['text'][i]
-    
+
+    def frame_element(self, x, y, w, h):
+        self.image = cv2.rectangle(self.image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        resizedImg = cv2.resize(self.image, (627, 797))
+        frame = cv2.cvtColor(resizedImg, cv2.COLOR_BGR2RGB)
+        image = QImage(frame, frame.shape[1], frame.shape[0], frame.strides[0],
+                       QImage.Format_RGB888)
+        self.ui.label_2.setPixmap(QPixmap.fromImage(image))
+
     def rotate_img(self):
         global r, rotated_image
         r = 'X'
@@ -227,11 +200,12 @@ class PyShine_OCR_APP(QtWidgets.QMainWindow):
         bytesPerLine = 3 * width
         qImg = QImage(deskewed.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
         self.ui.label_2.setPixmap(QtGui.QPixmap(qImg))
-    
+
     def save(self):
         mytext = self.textEdit.toPlainText()
         with open('test.txt', 'w') as outfile:
             outfile.write(mytext)
+
 
 # www.pyshine.com
 app = QtWidgets.QApplication(sys.argv)
